@@ -92,7 +92,7 @@ contract Backend {
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
         bytes32 base = _paintingsSlot(n);
-        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(base);
+        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(n);
         require(msg.sender==owner_, "You are not the owner");
         require(selling_ == true, "Painting not listed");
         if (c == Currency.Ether) {
@@ -116,7 +116,7 @@ contract Backend {
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
         bytes32 base = _paintingsSlot(n);
-        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(base);
+        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(n);
         require(msg.sender==owner_, "You are not the owner");
         require(selling_ == true, "Painting not listed");
         assembly {
@@ -160,14 +160,11 @@ contract Backend {
         }
     }
 
-    function _loadBalances(bytes32 key) internal pure returns(address owner,address creator, uint price, bool selling) {
+    function _loadBalances(bytes32 key) internal pure returns(uint balancE) {
         bytes32 base = _paintingsSlot(key);
 
         assembly {
-            owner := sload(base)
-            creator := sload(add(base, 1))
-            price := sload(add(base, 2))
-            selling := sload(add(base, 3))
+            balancE := sload(base)
         }
     }
 
