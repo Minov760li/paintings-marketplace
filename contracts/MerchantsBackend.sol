@@ -126,14 +126,24 @@ contract Backend {
     }
 
     function receiveMoney() external payable nonReentrant {
-        require(balances[msg.sender]>0,"You have no money for receiving");
-        uint amount = balances[msg.sender];
-        balances[msg.sender]=0;
+        bytes32 msgsender;
+        assembly {
+            msgsender := shl(96, caller())
+        }
+        bytes32 base = _balancesSlot(msgsender);
+        (uint balanceOfmsgsender) = _loadBalances(msgsender);
+        require(balanceOfmsgsender>0,"You have no money for receiving");
+        uint amount = balanceOfmsgsender;
+        assembly {
+            sstore(base, 0)
+            //balances[msg.sender]=0;
+        }
+        
         (bool sent, ) = msg.sender.call{value: amount}("");
         require(sent==true,"Transfer failed");
     }
 
-    function _paintingsSlot(bytes32 key) internal pure returns(bytes23 result) {
+    function _paintingsSlot(bytes32 key) internal pure returns(bytes32 result) {
         assembly {
             mstore(0x00, key)
             mstore(0x20, 3)
@@ -141,7 +151,7 @@ contract Backend {
         }
     }
 
-    function _balancesSlot(bytes32 key) internal pure returns(bytes23 result) {
+    function _balancesSlot(bytes32 key) internal pure returns(bytes32 result) {
         assembly {
             mstore(0x00, key)
             mstore(0x20, 4)
