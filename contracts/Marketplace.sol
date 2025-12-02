@@ -3,11 +3,17 @@ pragma solidity ^0.8.0;
 
 import {Backend} from "./MerchantsBackend.sol";
 
-contract Marketplace is Backend{
+contract Marketplace {
+    bool private entered = false;
+    address public owner;
+    bool public paused = false;
+    mapping(bytes32=>Painting) public paintings;
+    mapping(address=>uint) public balances;
+
     address immutable backend;
-    
+
     constructor(address _backend) {
-        require(msg.sender==owner, "You are not the owner");
+        owner = msg.sender;
         backend = _backend;
     }
 
@@ -24,7 +30,6 @@ contract Marketplace is Backend{
         balances[owner]+=paintings[n].price*2/100;
         paintings[n].owner = msg.sender;
         paintings[n].selling = false;
-        emit PaintingSold(name);
     }
 
     function deposit() public payable isNotPaused{
@@ -38,5 +43,53 @@ contract Marketplace is Backend{
         return paintings[n];
     }
 
-    receive() override external payable {}
+
+
+    struct Painting {
+        address owner;
+        address creator;
+        uint price;
+        bool selling;
+    }
+
+
+
+    modifier onlyOwner() {
+        require(msg.sender==owner, "you are not the owner");
+        _;
+    }
+
+    modifier isNotPaused() {
+        require(paused==false, "marketplace paused");
+        _;
+    }
+
+    // bool private entered = false;
+    modifier nonReentrant() {
+        require(!entered, "Reentrancy attack");
+        entered = true;
+        _;
+        entered = false;
+    }
+
+
+    
+    function pause() external onlyOwner {
+        paused = true;
+    }
+
+    function unpause() external onlyOwner {
+        paused = false;
+    }
+
+
+    receive() external payable {}
+
+    fallback() external payable isNotPaused{
+        (bool success, bytes memory data) = backend.delegatecall(msg.data);
+        require(success, "call failed");
+        assembly {
+        return(add(data, 32), mload(data))
+        }
+    }
 }
