@@ -37,14 +37,6 @@ contract Backend {
         _;
     }
 
-    bool private entered = false;
-    modifier nonReentrant() {
-        require(!entered, "Reentrancy attack");
-        entered = true;
-        _;
-        entered = false;
-    }
-
 
 
     function createPainting(string calldata name) external {
@@ -125,7 +117,7 @@ contract Backend {
         //paintings[n].selling = false;
     }
 
-    function receiveMoney() external payable nonReentrant {
+    function receiveMoney() external payable  {
         bytes32 msgsender;
         assembly {
             msgsender := shl(96, caller())
