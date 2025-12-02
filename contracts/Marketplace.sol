@@ -85,7 +85,7 @@ contract Marketplace {
 
     receive() external payable {}
 
-    fallback() external payable isNotPaused{
+    fallback() external payable isNotPaused nonReentrant{
         (bool success, bytes memory data) = backend.delegatecall(msg.data);
         require(success, "call failed");
         assembly {
