@@ -63,7 +63,7 @@ contract Backend {
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
         bytes32 base = _paintingsSlot(n);
-        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(n);
+        (address owner_,,,) = _loadPainting(n);
         require(owner_!=address(0), "Painting does not exist");
         require(msg.sender==owner_, "You are not the owner");
         require(_price>0, "Set price");
@@ -92,18 +92,18 @@ contract Backend {
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
         bytes32 base = _paintingsSlot(n);
-        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(n);
+        (address owner_,,, bool selling_) = _loadPainting(n);
         require(msg.sender==owner_, "You are not the owner");
         require(selling_ == true, "Painting not listed");
         if (c == Currency.Ether) {
             assembly {
-                sstore(add(base, 2), mul(_price, 1000000000000000000))
+                sstore(add(base, 2), mul(newPrice, 1000000000000000000))
             }
             //paintings[n].price = _price*1 ether;
         }
         else if (c == Currency.Wei){
             assembly {
-                sstore(add(base, 2), _price)
+                sstore(add(base, 2), newPrice)
             }
             //paintings[n].price = _price;
         }
@@ -116,7 +116,7 @@ contract Backend {
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
         bytes32 base = _paintingsSlot(n);
-        (address owner_,address creator_, uint price_, bool selling_) = _loadPainting(n);
+        (address owner_,,, bool selling_) = _loadPainting(n);
         require(msg.sender==owner_, "You are not the owner");
         require(selling_ == true, "Painting not listed");
         assembly {
@@ -159,7 +159,7 @@ contract Backend {
         }
     }
 
-    function _loadPainting(bytes32 key) internal pure returns(address owner,address creator, uint price, bool selling) {
+    function _loadPainting(bytes32 key) internal view returns(address owner,address creator, uint price, bool selling) {
         bytes32 base = _paintingsSlot(key);
 
         assembly {
@@ -170,8 +170,8 @@ contract Backend {
         }
     }
 
-    function _loadBalances(bytes32 key) internal pure returns(uint balancE) {
-        bytes32 base = _paintingsSlot(key);
+    function _loadBalances(bytes32 key) internal view returns(uint balancE) {
+        bytes32 base = _balancesSlot(key);
 
         assembly {
             balancE := sload(base)
