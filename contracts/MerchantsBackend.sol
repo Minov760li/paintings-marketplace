@@ -2,6 +2,8 @@
 pragma solidity ^0.8.0;
 
 contract Backend {
+    // storage allignment in marketplace:
+    // bool private entered = false;
     // address public owner;
     // bool public paused = false;
     // mapping(bytes32=>Painting) public paintings;
@@ -22,7 +24,7 @@ contract Backend {
     modifier onlyOwner() {
         address owner;
         assembly {
-            owner := sload(0)
+            owner := sload(1)
         }
         require(msg.sender==owner, "you are not the owner");
         _;
@@ -31,7 +33,7 @@ contract Backend {
     modifier isNotPaused() {
         bool paused;
         assembly {
-            paused := sload(1)
+            paused := sload(2)
         }
         require(paused==false, "marketplace paused");
         _;
