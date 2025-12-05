@@ -141,7 +141,7 @@ contract Backend {
         }
     }
 
-    function _balancesSlot(address key) internal pure returns(bytes32 result) {
+    function _balancesSlot(bytes32 key) internal pure returns(bytes32 result) {
         assembly {
             mstore(0x00, key)
             mstore(0x20, 4)
