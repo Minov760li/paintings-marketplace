@@ -113,7 +113,7 @@ contract Backend {
         (address owner_,,, bool selling_) = _loadPainting(n);
         require(msg.sender==owner_, "You are not the owner");
         require(selling_ == true, "Painting not listed");
-        assembly {
+        assembly {  
             sstore(add(base, 3), 0)
         }
         //paintings[n].selling = false;
