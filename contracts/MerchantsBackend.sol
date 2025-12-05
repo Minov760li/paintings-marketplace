@@ -120,12 +120,8 @@ contract Backend {
     }
 
     function receiveMoney() external payable  {
-        bytes32 msgsender;
-        assembly {
-            msgsender := shl(96, caller())
-        }
-        bytes32 base = _balancesSlot(msgsender);
-        (uint balanceOfmsgsender) = _loadBalances(msgsender);
+        bytes32 base = _balancesSlot(msg.sender);
+        (uint balanceOfmsgsender) = _loadBalances(msg.sender);
         require(balanceOfmsgsender>0,"You have no money for receiving");
         uint amount = balanceOfmsgsender;
         assembly {
@@ -145,7 +141,7 @@ contract Backend {
         }
     }
 
-    function _balancesSlot(bytes32 key) internal pure returns(bytes32 result) {
+    function _balancesSlot(address key) internal pure returns(bytes32 result) {
         assembly {
             mstore(0x00, key)
             mstore(0x20, 4)
@@ -164,7 +160,7 @@ contract Backend {
         }
     }
 
-    function _loadBalances(bytes32 key) internal view returns(uint balancE) {
+    function _loadBalances(address key) internal view returns(uint balancE) {
         bytes32 base = _balancesSlot(key);
 
         assembly {
