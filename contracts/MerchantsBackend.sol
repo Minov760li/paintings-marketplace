@@ -9,6 +9,12 @@ contract Backend {
     // mapping(bytes32=>Painting) public paintings;
     // mapping(address=>uint) public balances;
 
+    event PaintingCreated(string name, address indexed creator);
+    event PaintingListed(string name, uint256 price, uint8 currency);
+    event ListingPriceUpdated(string name, uint256 newPrice, uint8 currency);
+    event ListingCancelled(string name);
+    event MoneyWithdrawn(address indexed user, uint256 amount);
+
 
     struct Painting {
         address owner;
@@ -51,9 +57,11 @@ contract Backend {
         }
         require(paintingOwner==address(0), "Painting exists");
         _createPainting(base);
+
+        emit PaintingCreated(name, msg.sender);
     }
 
-    function sell(string calldata name, uint _price, Currency c) external {
+    function listPainting(string calldata name, uint _price, Currency c) external {
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
         bytes32 base = _paintingsSlot(n);
@@ -80,6 +88,8 @@ contract Backend {
             sstore(add(base, 3), 1)
         }
         //paintings[n].selling = true;
+
+        emit PaintingListed(name, _price, uint8(c));
     }
 
     function updateListingPrice(string calldata name, uint newPrice, Currency c) external {
@@ -104,6 +114,8 @@ contract Backend {
         else {
             revert("Unsupported currency");
         }
+
+        emit ListingPriceUpdated(name, newPrice, uint8(c));
     }
 
     function cancelListing(string calldata name) external {
@@ -117,6 +129,8 @@ contract Backend {
             sstore(add(base, 3), 0)
         }
         //paintings[n].selling = false;
+
+        emit ListingCancelled(name);
     }
 
     function receiveMoney() external payable  {
@@ -131,6 +145,8 @@ contract Backend {
         
         (bool sent, ) = msg.sender.call{value: amount}("");
         require(sent==true,"Transfer failed");
+
+        emit MoneyWithdrawn(msg.sender, amount);
     }
 
     function _paintingsSlot(bytes32 key) internal pure returns(bytes32 result) {
