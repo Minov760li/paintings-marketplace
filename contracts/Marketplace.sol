@@ -93,10 +93,23 @@ contract Marketplace {
     receive() external payable {}
 
     fallback() external payable isNotPaused nonReentrant{
+        bytes4 selector;
+        assembly {
+            selector := calldataload(0)
+            selector := shr(224, selector)  
+        }
+        bool allowed = false;
+        for (uint i=0;i<functions.length;i++) {
+            if (functions[i]==selector) {
+                allowed = true;
+                break;
+            }
+        }
+        require(allowed==true,"Function not allowed");
         (bool success, bytes memory data) = backend.delegatecall(msg.data);
         require(success, "call failed");
         assembly {
         return(add(data, 32), mload(data))
-        }
+            }
     }
 }
