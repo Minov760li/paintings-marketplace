@@ -11,6 +11,13 @@ contract Marketplace {
     mapping(address=>uint) public balances;
 
     address immutable backend;
+    bytes4[5] functions = [
+    bytes4(keccak256("createPainting(string)")),
+    bytes4(keccak256("sell(string, uint256, uint8)")),
+    bytes4(keccak256("updateListingPrice(string, uint256, uint8)")),
+    bytes4(keccak256("cancelListing(string)")),
+    bytes4(keccak256("receiveMoney()"))
+    ];
 
     constructor(address _backend) {
         owner = msg.sender;
