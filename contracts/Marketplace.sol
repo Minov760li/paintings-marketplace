@@ -123,7 +123,12 @@ contract Marketplace {
         }
         require(allowed==true,"Function not allowed");
         (bool success, bytes memory data) = backend.delegatecall(msg.data);
-        require(success, "call failed");
+        if (success==false) {
+            if (data.length==0) { revert("Delegate call failed"); }
+            assembly {
+                    revert(add(data, 32), mload(data))
+            }
+        }
         assembly {
         return(add(data, 32), mload(data))
             }
