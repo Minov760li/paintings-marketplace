@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 contract Backend {
     // storage allignment in marketplace:
+
     // bool private entered = false;
     // address public owner;
     // bool public paused = false;
@@ -30,7 +31,8 @@ contract Backend {
     modifier onlyOwner() {
         address owner;
         assembly {
-            owner := sload(1)
+            let slot0 := sload(0)
+            owner := and(shr(8, slot0), 0xffffffffffffffffffffffffffffffffffffffff)
         }
         require(msg.sender==owner, "you are not the owner");
         _;
@@ -39,7 +41,8 @@ contract Backend {
     modifier isNotPaused() {
         bool paused;
         assembly {
-            paused := sload(2)
+            let slot0 := sload(0)
+            paused := and(shr(168, slot0), 0xff)
         }
         require(paused==false, "marketplace paused");
         _;
@@ -152,7 +155,7 @@ contract Backend {
     function _paintingsSlot(bytes32 key) internal pure returns(bytes32 result) {
         assembly {
             mstore(0x00, key)
-            mstore(0x20, 3)
+            mstore(0x20, 1)
             result := keccak256(0x00,0x40)
         }
     }
@@ -160,7 +163,7 @@ contract Backend {
     function _balancesSlot(bytes32 key) internal pure returns(bytes32 result) {
         assembly {
             mstore(0x00, key)
-            mstore(0x20, 4)
+            mstore(0x20, 2)
             result := keccak256(0x00,0x40)
         }
     }
