@@ -109,6 +109,7 @@ contract Marketplace {
     receive() external payable {}
 
     fallback() external payable isNotPaused nonReentrant{
+        require(backend!=address(0), "Backend is address 0");
         bytes4 selector;
         assembly {
             selector := calldataload(0)
