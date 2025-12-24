@@ -17,14 +17,6 @@ contract Backend {
     event MoneyWithdrawn(address indexed user, uint256 amount);
 
 
-    struct Painting {
-        address owner;
-        address creator;
-        uint price;
-        bool selling;
-    }
-
-
     enum Currency { Wei, Ether}
 
 
