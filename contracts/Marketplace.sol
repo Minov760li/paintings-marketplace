@@ -8,7 +8,7 @@ contract Marketplace {
     address public owner;
     bool public paused = false;
     mapping(bytes32=>Painting) public paintings;
-    mapping(bytes32=>uint) public balances;
+    mapping(address=>uint) public balances;
 
     address immutable backend;
     bytes4[5] functions = [
@@ -32,24 +32,24 @@ contract Marketplace {
     function buy(string calldata name) public payable isNotPaused nonReentrant{
         require(bytes(name).length > 0 && bytes(name).length <= 32, "Invalid name length");
         bytes32 n = keccak256(bytes(name));
-        bytes32 msgsender = ToBytes32(msg.sender);
         require(paintings[n].owner!=address(0),"Painting does not exist");
-        require(msgsender!=ToBytes32(paintings[n].owner),"You are the owner");
+        require(msg.sender!=paintings[n].owner,"You are the owner");
         require(paintings[n].selling==true, "Painting not for sale");
-        require(balances[msgsender]>=paintings[n].price, "Not enough money");
-        balances[msgsender]-=paintings[n].price;
-        balances[ToBytes32(paintings[n].owner)]+=paintings[n].price-(paintings[n].price*10/100)-(paintings[n].price*2/100);
-        balances[ToBytes32(paintings[n].creator)]+=paintings[n].price*10/100;
-        balances[ToBytes32(owner)]+=paintings[n].price*2/100;
+        require(balances[msg.sender]>=paintings[n].price, "Not enough money");
+        balances[msg.sender]-=paintings[n].price;
+        balances[paintings[n].owner]+=paintings[n].price-(paintings[n].price*10/100)-(paintings[n].price*2/100);
+        balances[paintings[n].creator]+=paintings[n].price*10/100;
+        balances[owner]+=paintings[n].price*2/100;
+        address seller = paintings[n].owner;
         paintings[n].owner = msg.sender;
         paintings[n].selling = false;
 
-        emit PaintingBought(name, msg.sender, paintings[n].owner, paintings[n].price);
+        emit PaintingBought(name, msg.sender, seller, paintings[n].price);
     }
 
     function deposit() public payable isNotPaused{
         require(msg.value>0, "No money sended");
-        balances[ToBytes32(msg.sender)]+=msg.value;
+        balances[msg.sender]+=msg.value;
 
         emit Deposit(msg.sender, msg.value);
     }
@@ -60,9 +60,6 @@ contract Marketplace {
         return paintings[n];
     }
 
-    function ToBytes32(address addr) private pure returns(bytes32 bytesaddr) {
-        return bytes32(uint256(uint160(addr)));
-    }
 
     struct Painting {
         address owner;
