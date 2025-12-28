@@ -21,6 +21,7 @@ contract Marketplace {
 
     event PaintingBought(string name, address indexed buyer, address indexed seller, uint256 price);
     event Deposit(address indexed user, uint256 amount);
+    event FeesCollected(address indexed user, uint256 amount);
     event Paused();
     event Unpaused();
 
@@ -77,6 +78,14 @@ contract Marketplace {
         balances[msg.sender]+=msg.value;
 
         emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdrawFees() external payable onlyOwner isNotPaused{
+        uint amount = balances[owner];
+        balances[owner] = 0;
+        (bool sent,) = owner.call{value: amount}("");
+        require(sent, "call failed");
+        emit FeesCollected(owner, amount);
     }
 
     function info(string calldata name) public isNotPaused view returns(Painting memory) {
