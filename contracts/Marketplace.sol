@@ -24,6 +24,31 @@ contract Marketplace {
     event Paused();
     event Unpaused();
 
+    struct Painting {
+        address owner;
+        address creator;
+        uint price;
+        bool selling;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender==owner, "you are not the owner");
+        _;
+    }
+
+    modifier isNotPaused() {
+        require(paused==false, "marketplace paused");
+        _;
+    }
+
+    // bool private entered = false;
+    modifier nonReentrant() {
+        require(!entered, "Reentrancy attack");
+        entered = true;
+        _;
+        entered = false;
+    }
+
     constructor(address _backend) {
         owner = msg.sender;
         backend = _backend;
@@ -60,36 +85,6 @@ contract Marketplace {
         return paintings[n];
     }
 
-
-    struct Painting {
-        address owner;
-        address creator;
-        uint price;
-        bool selling;
-    }
-
-
-
-    modifier onlyOwner() {
-        require(msg.sender==owner, "you are not the owner");
-        _;
-    }
-
-    modifier isNotPaused() {
-        require(paused==false, "marketplace paused");
-        _;
-    }
-
-    // bool private entered = false;
-    modifier nonReentrant() {
-        require(!entered, "Reentrancy attack");
-        entered = true;
-        _;
-        entered = false;
-    }
-
-
-    
     function pause() external onlyOwner {
         paused = true;
 
