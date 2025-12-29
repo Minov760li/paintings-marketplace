@@ -1,0 +1,45 @@
+[
+	{
+		"inputs": [ { "internalType": "string", "name": "name", "type": "string" } ],
+		"name": "createPainting",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{ "internalType": "string", "name": "name", "type": "string" },
+			{ "internalType": "uint256", "name": "_price", "type": "uint256" },
+			{ "internalType": "enum Backend.Currency", "name": "c", "type": "uint8" }
+		],
+		"name": "listPainting",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{ "internalType": "string", "name": "name", "type": "string" },
+			{ "internalType": "uint256", "name": "newPrice", "type": "uint256" },
+			{ "internalType": "enum Backend.Currency", "name": "c", "type": "uint8" }
+		],
+		"name": "updateListingPrice",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [ { "internalType": "string", "name": "name", "type": "string" } ],
+		"name": "cancelListing",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "receiveMoney",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	}
+]
