@@ -63,7 +63,7 @@ contract Backend {
         (address owner_,,,) = _loadPainting(n);
         require(owner_!=address(0), "Painting does not exist");
         require(msg.sender==owner_, "You are not the owner");
-        require(_price>0, "Set price");
+        require(_price>50, "Precision lost, set a price over 50 wei");
         if (c == Currency.Ether) {
             assembly {
                 sstore(add(base, 2), mul(_price, 1000000000000000000))
@@ -94,6 +94,7 @@ contract Backend {
         (address owner_,,, bool selling_) = _loadPainting(n);
         require(msg.sender==owner_, "You are not the owner");
         require(selling_ == true, "Painting not listed");
+        require(newPrice>50, "Precision lost, set a price over 50 wei");
         if (c == Currency.Ether) {
             assembly {
                 sstore(add(base, 2), mul(newPrice, 1000000000000000000))
